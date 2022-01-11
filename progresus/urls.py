@@ -4,13 +4,13 @@ from django.urls import path
 from . import views
  
 urlpatterns = [
+    path("", views.Home,name="Home"),
+    path("SignUp",views.SignUp,name="SignUp"),
+    path("login",views.login_page,name="login"),
+    path("logout",views.logout_page,name="logout"),
+    path("ContentLol",views.ContentLol,name="ContentLol"),
 
-    path("", views.Anasayfa,name="anasayfa"),
-    path("kayıtol/",views.kayıtol,name="kayıtol"),
-    path("giris/",views.giris,name="giris"),
-    path("cıkıs/",views.cıkıs,name="cıkıs"),
-    path("kullancı_kayıtol",views.kullancı_kayıtol,name="kullancı_kayıtol"),
-    path("kullancı_giris",views.kullancı_giris,name="kullancı_giris"),
+ 
 
   
 ]

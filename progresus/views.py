@@ -1,3 +1,4 @@
+from logging import exception
 from django.shortcuts import render,redirect
 
 from django.http import HttpResponse
@@ -31,95 +32,102 @@ database=firebase.database()
 
 
 
-
-
-
-
-
-
-
-
-
-def Anasayfa(request):
+def Home(request):
+    #DATABASE VERİLERİ
     format= database.child("users").get()
-    aa=format.val()
+    Database_All_Data_Value=format.val()
+    return render(request,"index.html",{"Data_For_User":Database_All_Data_Value})
+
+def SignUp(request):
+    if request.user.is_authenticated:
+        return redirect('Home')
+    if request.method == "POST":
+        is_Active=False
+        lol_nickname="None"
+
+        name=request.POST.get("name")
+        email=request.POST.get("email")
+        password=request.POST.get("password")
+
+        try:
+            #KULLANICI KAYIT OLMA SQLİTE
+            try:
+                user=User.objects.create_user(str(name), str(email), str(password))
+                user.save()
+                try:
+                 #KULLANICI KAYDETME FİREBASE
+                    id=user.id
+                    data = {"id":id,"name":name,"email":email,"password":password,"is_Active":is_Active,"lol_nickname":lol_nickname}
+                    database.child("users").push(data)
+                    authe.create_user_with_email_and_password(email,password)
+                    try:
+                        print("kayıt başarılı")
+                        return redirect("login")
+                        
+
+                    except Exception as e:
+                        print(str(e)+"login sayfa hatası")
 
 
-
-    return render(request,"anasayfa.html",{"forr":aa})
- 
-def kayıtol(request):
-    return render(request,"kayıtol.html")
-def giris(request):
-    return render(request,"giris.html")
-def icerik(request):
-    return render(request,"icerik.html")
-
-def kullancı_kayıtol(request):
-    isim=request.POST.get("isim")
-    
-    is_Active=False
-    email=request.POST.get("email")
-
-    sifre=request.POST.get("sifre")
-    # format= database.child("users").get()
-    # aa=format.val()
-    # id=int(len(aa))+1
-    # id=str(id)
-
-    
-    
-    try:
-        user=User.objects.create_user(str(isim), str(email), str(sifre))
-        
-        user.save()
-        id=user.id
-        data = {"id":id,"name":isim,"email":email,"password":sifre,"is_Active":is_Active}
-        database.child("users").push(data)
-        
-
-        authe.create_user_with_email_and_password(email,sifre)
-    except:
-        return HttpResponse("kayıtolma başarısız")
-    return redirect("giris")
-
-
-@csrf_exempt 
-def kullancı_giris(request):
-
-    format= database.child("users").get()
-    aa=format.val()
-
-
-    
-    email=request.POST.get("email")
-    sifre=request.POST.get("sifre")
- 
-    try:
-        
-        all_users = database.child("users").get()
-        for user in all_users.each():
-            user_email=user.val()["email"]
-            key_is_Activate=user.key()
-            user_email=str(user_email)
-            
-            if user_email == str(email):
-                
-                user_login=user.val()["name"]
-                print(user_login)
-                user = authenticate(request, username=user_login, password=sifre)
-                login(request,user)
-                # authe.sign_in_with_email_and_password(email,sifre)
-                database.child("users").child(key_is_Activate).update({"is_Active": "True"})
+                except Exception as e:
+                    print(str(e)+"FİREBASE  HATA")
                 
 
+            except Exception as e:
+                print(str(e)+"SQLİTE HATA")
+ 
+        except Exception as e:
+            print(str(e)+"POST HATA")
+    return render(request,"sign-up.html")
 
 
-    except:
-        return render(request,"anasayfa.html",{"forr":aa})
-    return render(request,"anasayfa.html",{"forr":aa})
 
-def cıkıs(request):
+
+def login_page(request):
+    if request.user.is_authenticated:
+        return redirect('Home')
+
+    if request.method=="POST":
+        email=request.POST.get("email")
+        password=request.POST.get("password")
+        #FİREBASE KULLANICI DATA GETİRME
+        try:
+            all_users = database.child("users").get()
+            #kullanıcı emailine göre kullanıcı adı bulma
+            try:
+                for user in all_users.each():
+                    firebase_email=user.val()["email"]
+                    name_key=user.key()
+                    firebase_email=str(firebase_email)
+                    if firebase_email == str(email):
+                        firebase_name=user.val()["name"]
+                        #kullanıcı doğrulama
+                        try:
+                            user = authenticate(request, username=str(firebase_name), password=str(password))
+                            
+                            login(request,user)
+                            try:
+                                authe.sign_in_with_email_and_password(email,password)
+                                try:
+                                    database.child("users").child(name_key).update({"is_Active": "True"})
+                                    try:
+                                     return redirect("Home")
+                                    except Exception as e:
+                                        print(str(e)+"HOME SAYFASINA GİTMİYOR")
+                                except Exception as e:
+                                    print(str(e)+"FİREBASE İS_ACTİVE DEĞİŞTİRİLEMİYOR")
+                            except Exception as e:
+                                print(str(e)+"KULLANICI  FİREBASE  ONAYLAMIYOR")
+                        except Exception as e:
+                            print(str(e)+"KULLANICI  SQLİTE  ONAYLAMIYOR")
+            except Exception as e:
+                print(str(e)+"FİREBASE DATALARI GELMİYOR")   
+        except Exception as e:
+            print(str(e)+"FİREBASE DATALARI GELMİYOR")
+    return render(request,"log-in.html")
+
+
+def logout_page(request):
     format= database.child("users").get()
     id=request.user.id
     
@@ -129,5 +137,27 @@ def cıkıs(request):
             a=i.key()
             database.child("users").child(a).update({"is_Active": "False"})
             logout(request)    
-            return redirect('giris')
-            
+            return redirect('Home')
+
+
+
+@csrf_exempt
+def ContentLol(request):
+    if request.user.is_authenticated != True :
+        return redirect('Home')
+
+
+    id=request.user.id
+    lol_nickname=request.POST.get("lol_nickname", "")
+    format= database.child("users").get()
+    for i in format:
+        
+        if i.val()["id"] == id:
+            a=i.key()
+            database.child("users").child(a).update({"lol_nickname": lol_nickname})
+    
+    format= database.child("users").get()
+    Database_All_Data_Value=format.val()
+
+
+    return render(request,"content.html",{"Data_For_User":Database_All_Data_Value})
