@@ -9,6 +9,7 @@ urlpatterns = [
     path("login",views.login_page,name="login"),
     path("logout",views.logout_page,name="logout"),
     path("ContentLol",views.ContentLol,name="ContentLol"),
+    path("User_Challenge",views.User_Challenge,name="User_Challenge")
 
  
 

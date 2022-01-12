@@ -143,6 +143,7 @@ def logout_page(request):
 
 @csrf_exempt
 def ContentLol(request):
+
     if request.user.is_authenticated != True :
         return redirect('Home')
 
@@ -157,7 +158,50 @@ def ContentLol(request):
             database.child("users").child(a).update({"lol_nickname": lol_nickname})
     
     format= database.child("users").get()
+    istek= database.child("istekler").get()
     Database_All_Data_Value=format.val()
+    Database_istek_Value=istek.val()
+    context={
+        "Data_For_User":Database_All_Data_Value,
+        "Data_For_istek":Database_istek_Value
 
 
-    return render(request,"content.html",{"Data_For_User":Database_All_Data_Value})
+    }
+
+
+    return render(request,"content.html",context)
+
+def User_Challenge(request):
+    istek_alan = request.GET.get('abc')
+    istek_gönderen_id=request.user.id
+    istek_gönderen=request.user.username
+
+    #nicke göre id getirme firebase
+    format= database.child("users").get()
+    for i in format.each():
+        
+        if i.val()["name"] == istek_alan:
+            istek_alan_id=i.val()["id"]
+            data = {
+                "istek_gönderen":istek_gönderen,
+                "istek_gönderen_id":istek_gönderen_id,
+                "istek_alan":istek_alan,
+                "istek_alan_id":istek_alan_id,
+                "istek_onay":"True"}
+            database.child("istekler").push(data)
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+ 
+    return redirect("ContentLol")
