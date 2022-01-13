@@ -25,15 +25,15 @@ SECRET_KEY = 'django-insecure-zkn7zp$cy#emkt07i)ybx-i=kv%6g9&o_(+e*+au7nmvtm#z##
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# 'lolbett.herokuapp.com'
-<<<<<<< HEAD
-ALLOWED_HOSTS = ['lolbett.herokuapp.com',"*"]
+
+ALLOWED_HOSTS = ['lolbett.herokuapp.com']
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE =True
 
-=======
-ALLOWED_HOSTS = ['lolbett.herokuapp.com']
->>>>>>> 8f54b810ccf5a97c1caf483cd98accc83b002763
+
+
+
+
 
 
 # Application definition
