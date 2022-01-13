@@ -7,6 +7,13 @@ from django.contrib.auth import login,authenticate,logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from lcu_driver import Connector
+import psutil
+import requests
+
+from requests.auth import HTTPBasicAuth
+import json
+
 
 
 
@@ -144,32 +151,51 @@ def logout_page(request):
 @csrf_exempt
 def ContentLol(request):
 
-    if request.user.is_authenticated != True :
-        return redirect('Home')
-
-
-    id=request.user.id
-    lol_nickname=request.POST.get("lol_nickname", "")
-    format= database.child("users").get()
-    for i in format:
-        
-        if i.val()["id"] == id:
-            a=i.key()
-            database.child("users").child(a).update({"lol_nickname": lol_nickname})
+    process_name = "LeagueClientUx.exe" 
+    for proc in psutil.process_iter(): 
     
-    format= database.child("users").get()
-    istek= database.child("istekler").get()
-    Database_All_Data_Value=format.val()
-    Database_istek_Value=istek.val()
-    context={
-        "Data_For_User":Database_All_Data_Value,
-        "Data_For_istek":Database_istek_Value
+        process = psutil.Process(proc.pid)
+        pname = process.name()
+        #print pname
+        if pname == process_name: 
+            
+            d = psutil.Process(int(proc.pid))
+            a=d.cmdline()
+            app_port=a[10][11:]
+            print(app_port)
+            
+            auth_key=a[7][22:]
+            print(auth_key)
+            data = {
+            "customGameLobby": {
+                "configuration": {
+                    "gameMode": "PRACTICETOOL",
+                    "gameMutator": "",
+                    "gameServerRegion": "",
+                    "mapId": 11,
+                    "mutators": {
+                        "id": 1
+                                },
+                                "spectatorPolicy": "AllAllowed",
+                                "teamSize": 5,
+                            },
+                            "lobbyName": "League of Poro's Practice Tool",
+                            "lobbyPassword": ""
+                        },
+                        "isCustom": True,
+                    }
 
+            headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+            basic = HTTPBasicAuth('riot', f'{auth_key}')
 
-    }
+            # f'https://127.0.0.1:{app_port}'
+            r=requests.post(f'https://127.0.0.1:{app_port}/lol-lobby/v2/lobby',data=json.dumps(data),auth=basic,headers=headers,verify=False)
+            print(r.content)
+        
 
-
-    return render(request,"content.html",context)
 
 def User_Challenge(request):
     istek_alan = request.GET.get('abc')
