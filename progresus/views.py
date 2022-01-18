@@ -151,7 +151,7 @@ def logout_page(request):
 @csrf_exempt
 def ContentLol(request):
     if request.method =="POST":
-        ip=request.META.get("REMOTE_ADDR")
+        ip=request.META.get("HTTP_X_FORWARDED_FOR")
         format= database.child("users").get()
         id=request.user.id
         
