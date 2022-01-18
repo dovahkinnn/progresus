@@ -152,7 +152,6 @@ def logout_page(request):
 def ContentLol(request):
     if request.method =="POST":
         ip=request.META.get("REMOTE_ADDR")
-        print(ip)
         format= database.child("users").get()
         id=request.user.id
         
