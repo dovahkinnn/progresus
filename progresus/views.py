@@ -66,7 +66,7 @@ def SignUp(request):
                  #KULLANICI KAYDETME FİREBASE
                     id=user.id
                     data = {"id":id,"name":name,"email":email,"password":password,"is_Active":is_Active,"lol_nickname":lol_nickname}
-                    database.child("users").push(data)
+                    database.child("users").push(data,token="Oq4fBRRrJEohuwo9J7pd63q3aH5buH50DHCpJxjt")
                     authe.create_user_with_email_and_password(email,password)
                     try:
                         print("kayıt başarılı")
@@ -117,7 +117,7 @@ def login_page(request):
                             try:
                                 authe.sign_in_with_email_and_password(email,password)
                                 try:
-                                    database.child("users").child(name_key).update({"is_Active": "True"})
+                                    database.child("users").child(name_key).update(token="Oq4fBRRrJEohuwo9J7pd63q3aH5buH50DHCpJxjt",{"is_Active": "True"})
                                     try:
                                      return redirect("Home")
                                     except Exception as e:
@@ -143,7 +143,7 @@ def logout_page(request):
         
         if i.val()["id"] == id:
             a=i.key()
-            database.child("users").child(a).update({"is_Active": "False"})
+            database.child("users").child(a).update(token="Oq4fBRRrJEohuwo9J7pd63q3aH5buH50DHCpJxjt",{"is_Active": "False"})
             logout(request)    
             return redirect('Home')
 
@@ -160,7 +160,7 @@ def ContentLol(request):
             
             if i.val()["id"] == id:
                 a=i.key()
-                database.child("users").child(a).update({"button": "True","ip":ip})
+                database.child("users").child(a).update(token="Oq4fBRRrJEohuwo9J7pd63q3aH5buH50DHCpJxjt",{"button": "True","ip":ip})
 
 
     
@@ -184,7 +184,7 @@ def User_Challenge(request):
                 "istek_alan":istek_alan,
                 "istek_alan_id":istek_alan_id,
                 "istek_onay":"True"}
-            database.child("istekler").push(data)
+            database.child("istekler").push(token="Oq4fBRRrJEohuwo9J7pd63q3aH5buH50DHCpJxjt",data)
 
 
 
